@@ -6,7 +6,7 @@
 /*   By: ayait-el <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 11:05:59 by ayait-el          #+#    #+#             */
-/*   Updated: 2023/11/21 20:51:19 by ayait-el         ###   ########.fr       */
+/*   Updated: 2023/11/21 22:26:39 by ayait-el         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ char *get_next_line(int fd)
     line.size = state->remained_size;
     state->remained_size = 0;
   }
-  while ((readed = read(fd, buffer, BUFFER_SIZE)))
+  while ((readed = read(fd, buffer, BUFFER_SIZE)) > 0)
   {
     if ((tmp = check_new_line(buffer, readed)))
     {
@@ -102,7 +102,8 @@ char *get_next_line(int fd)
 #include <stdio.h>
 int main(void)
 {
-  int fd = open("testfile", O_RDONLY);
+  int fd = open("empty.txt", O_RDONLY);
+  close(fd);
   char *line;
 
   while ((line = get_next_line(fd)))
