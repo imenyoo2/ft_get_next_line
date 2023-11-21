@@ -6,7 +6,7 @@
 /*   By: ayait-el <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 11:05:59 by ayait-el          #+#    #+#             */
-/*   Updated: 2023/11/20 15:58:38 by ayait-el         ###   ########.fr       */
+/*   Updated: 2023/11/21 20:51:19 by ayait-el         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,13 @@
 char *get_next_line(int fd)
 {
   static t_state *state = NULL;
-  char buffer[BUFFER_SIZE];
+  char *buffer;
   int readed;
   char *tmp;
   t_line line;
 
+  if (fd < 0)
+    return (NULL);
   if (state == NULL)
   {
     if (!(state = init_state()))
@@ -29,14 +31,29 @@ char *get_next_line(int fd)
   }
   line.line = NULL;
   line.size = 0;
+  if (!(buffer = malloc(BUFFER_SIZE * sizeof(char))))
+  {
+    free(state->remained);
+    free(state);
+    state = NULL;
+    return (NULL);
+  }
   if (state->remained_size)
   {
     if ((tmp = check_new_line(state->remained, state->remained_size)))
     {
       line.line = ft_realloc(NULL, 0, state->remained, tmp - state->remained + 1);
-      // this may overflow
+      if (line.line == NULL)
+      {
+        free(state->remained);
+        free(state);
+        state = NULL;
+        free(buffer);
+        return (NULL);
+      }
       ft_memcpy(state->remained, tmp + 1, state->remained_size - (tmp - state->remained + 1));
       state->remained_size -= (tmp - state->remained + 1);
+      free(buffer);
       return (line.line);
     }
     line.line = ft_realloc(NULL, 0, state->remained, state->remained_size);
@@ -49,19 +66,38 @@ char *get_next_line(int fd)
     {
       line.line = ft_realloc(line.line, line.size, buffer, tmp - buffer  + 1);
       if (line.line == NULL)
+      {
+        free(state->remained);
+        free(state);
+        state = NULL;
+        free(buffer);
         return (NULL);
+      }
       ft_memcpy(state->remained, tmp + 1, readed - (tmp - buffer + 1));
       state->remained_size = readed - (tmp - buffer + 1);
+      free(buffer);
       return (line.line);
     }
     line.line = ft_realloc(line.line, line.size, buffer, readed);
     if (line.line == NULL)
+    {
+        free(state->remained);
+        free(state);
+        state = NULL;
+        free(buffer);
         return (NULL);
+    }
     line.size += readed;
   }
+  free(buffer);
+  free(state->remained);
+  free(state);
+  if (line.line)
+    return (line.line);
   return (NULL);
 }
 
+/*
 #include <fcntl.h>
 #include <stdio.h>
 int main(void)
@@ -75,3 +111,4 @@ int main(void)
     free(line);
   }
 }
+*/
