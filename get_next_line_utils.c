@@ -37,7 +37,7 @@ void    *ft_memcpy(void *dest, const void *src, size_t n)
 // only the dst that need to be freed
 char *ft_realloc(char *dst, size_t dstsize, char *src, size_t srcsize)
 {
-  char *new = NULL;
+  char *new;
 
   new = malloc(sizeof(char) * (dstsize + srcsize + 1));
   if (new == NULL)

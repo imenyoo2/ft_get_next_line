@@ -6,7 +6,7 @@
 /*   By: ayait-el <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 11:05:59 by ayait-el          #+#    #+#             */
-/*   Updated: 2023/11/21 22:26:39 by ayait-el         ###   ########.fr       */
+/*   Updated: 2023/11/22 10:30:53 by ayait-el         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,8 @@ char *get_next_line(int fd)
 #include <stdio.h>
 int main(void)
 {
-  int fd = open("empty.txt", O_RDONLY);
-  close(fd);
+  int fd = open("1char.txt", O_RDONLY);
+  //close(fd);
   char *line;
 
   while ((line = get_next_line(fd)))
@@ -111,5 +111,6 @@ int main(void)
     printf("%s", line);
     free(line);
   }
+  printf("%s\n", line);
 }
 */
