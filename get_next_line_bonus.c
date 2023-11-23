@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ayait-el <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 11:05:59 by ayait-el          #+#    #+#             */
-/*   Updated: 2023/11/23 14:02:14 by ayait-el         ###   ########.fr       */
+/*   Updated: 2023/11/22 20:36:02 by ayait-el         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static int	check_remained(t_state *state, char *buffer, t_line *line)
 {
@@ -22,13 +22,14 @@ static int	check_remained(t_state *state, char *buffer, t_line *line)
 		if (tmp)
 		{
 			line->line = ft_realloc(NULL, 0, state->remained, tmp
-				- state->remained + 1);
+					- state->remained + 1);
 			if (line->line == NULL)
 			{
 				ft_free(&state, buffer, line->line, STATE | BUFFER);
 				return (1);
 			}
-			ft_memcpy(state->remained, tmp + 1, state->remained_size - (tmp - state->remained + 1));
+			ft_memcpy(state->remained, tmp + 1, state->remained_size - (tmp
+					- state->remained + 1));
 			state->remained_size -= (tmp - state->remained + 1);
 			ft_free(&state, buffer, line->line, BUFFER);
 			return (1);
@@ -51,7 +52,8 @@ static int	read_line(t_state *state, char *buffer, t_line *line, int fd)
 		tmp = check_new_line(buffer, readed);
 		if (tmp)
 		{
-			line->line = ft_realloc(line->line, line->size, buffer, tmp - buffer + 1);
+			line->line = ft_realloc(line->line, line->size, buffer, tmp - buffer
+					+ 1);
 			if (line->line == NULL)
 			{
 				ft_free(&state, buffer, line->line, STATE | BUFFER);
@@ -69,32 +71,31 @@ static int	read_line(t_state *state, char *buffer, t_line *line, int fd)
 			return (readed);
 		}
 		line->size += readed;
-		readed = read(fd, buffer, BUFFER_SIZE);
+    readed = read(fd, buffer, BUFFER_SIZE);
 	}
 	return (readed);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_state	*state = NULL;
+	static t_state	*state_arr[OPEN_MAX] = {0};
 	char			*buffer;
 	int				readed;
 	t_line			line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd > OPEN_MAX)
 		return (NULL);
-	if (!init_state(&state, &line, &buffer))
+	if (!init_state(&state_arr[fd], &line, &buffer))
 		return (NULL);
-	if (check_remained(state, buffer, &line))
+	if (check_remained(state_arr[fd], buffer, &line))
 		return (line.line);
-	readed = read_line(state, buffer, &line, fd);
+	readed = read_line(state_arr[fd], buffer, &line, fd);
 	if (readed > 0)
 		return (line.line);
-	ft_free(&state, buffer, line.line, STATE | BUFFER);
+	ft_free(&state_arr[fd], buffer, line.line, STATE | BUFFER);
 	if (line.line && readed != -1)
 		return (line.line);
-	if (line.line)
-		ft_free(&state, buffer, line.line, LINE);
+	ft_free(&state_arr[fd], buffer, line.line, LINE);
 	return (NULL);
 }
 
@@ -104,12 +105,12 @@ char	*get_next_line(int fd)
 
 int	main(void)
 {
-char		*name = "read_error.txt";
-int			fd = open(name, O_RDONLY);
-char		*temp;
+	char	*name;
+	int		fd;
+	char	*temp;
 
-//int fd = open("1char.txt", O_RDONLY);
-//close(fd);
+  //int fd = open("1char.txt", O_RDONLY);
+  //close(fd);
 //  char *line;
 //
 //  while ((line = get_next_line(100)))
@@ -118,16 +119,18 @@ char		*temp;
 //    free(line);
 //  }
 //  printf("%s\n", line);
-printf("expeced: aaaaaaaaaa\ngot: %s", get_next_line(fd));
-printf("expeced: bbbbbbbbbb\ngot: %s", get_next_line(fd));
-// set the next read call to return -1
-//next_read_error = 1;
-if (BUFFER_SIZE >= 100) {
-do {
-temp = get_next_line(fd);
-free(temp);
-} while (temp != NULL);
-}
-printf("expeced null, got %s\n", get_next_line(fd));
+  name = "read_error.txt";
+  fd = open(name, O_RDONLY);
+  printf("expeced: aaaaaaaaaa\ngot: %s", get_next_line(fd));
+  printf("expeced: bbbbbbbbbb\ngot: %s", get_next_line(fd));
+  // set the next read call to return -1
+  //next_read_error = 1;
+  if (BUFFER_SIZE >= 100) {
+	do {
+		temp = get_next_line(fd);
+		free(temp);
+	} while (temp != NULL);
+  }
+  printf("expeced null, got %s\n", get_next_line(fd));
 }
 */
